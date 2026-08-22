@@ -1,0 +1,70 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "demo@excelerate.org",
+      "password": "Demo1234",
+      "name": "Demo Learner",
+      "role": "LEARNER"
+    }
+  ],
+  "programs": [
+    {
+      "id": 1,
+      "title": "Flutter Cross-Platform Development",
+      "category": "Technology",
+      "description": "Learn to build high-performance native apps for iOS and Android using Flutter and Dart.",
+      "duration": "8 Weeks",
+      "learningOutcomes": ["State Management", "REST API Integration", "Custom Animations"],
+      "journey": "Module 1: Dart Basics -> Module 2: UI Layouts -> Module 3: Networking",
+      "status": "In progress",
+      "progressPercent": 45
+    },
+    {
+      "id": 2,
+      "title": "Spring Boot Microservices",
+      "category": "Technology",
+      "description": "Master enterprise backend architectures with Java, Spring Boot, and RESTful APIs.",
+      "duration": "10 Weeks",
+      "learningOutcomes": ["REST Controllers", "Spring Security & JWT", "Database Connectivity"],
+      "journey": "Module 1: Spring Core -> Module 2: Security -> Module 3: Deployment",
+      "status": "Available",
+      "progressPercent": 0
+    },
+    {
+      "id": 3,
+      "title": "Agile Product Management",
+      "category": "Business",
+      "description": "Learn the principles of modern agile frameworks, roadmapping, and user storytelling.",
+      "duration": "6 Weeks",
+      "learningOutcomes": ["Backlog Refinement", "Sprint Planning", "User Metrics"],
+      "journey": "Module 1: Agile Manifesto -> Module 2: Scrum Ceremonies",
+      "status": "Available",
+      "progressPercent": 0
+    },
+    {
+      "id": 4,
+      "title": "UI/UX Design Systems",
+      "category": "Design",
+      "description": "Create scalable, accessible component design libraries using Figma.",
+      "duration": "5 Weeks",
+      "learningOutcomes": ["Design Tokens", "Wireframing", "Accessibility Standards"],
+      "journey": "Module 1: Figma Essentials -> Module 2: Design Tokens",
+      "status": "In progress",
+      "progressPercent": 80
+    },
+    {
+      "id": 5,
+      "title": "Cloud Fundamentals (AWS)",
+      "category": "Technology",
+      "description": "Get hands-on with EC2, S3, IAM, and Serverless compute options.",
+      "duration": "7 Weeks",
+      "learningOutcomes": ["IAM Policies", "S3 Storage Buckets", "Lambda Functions"],
+      "journey": "Module 1: Cloud Concepts -> Module 2: Core Services",
+      "status": "Available",
+      "progressPercent": 0
+    }
+  ],
+  "enrollments": [],
+  "feedback": []
+}
