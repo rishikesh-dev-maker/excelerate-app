@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import '../models/program.dart';
 import '../theme/app_theme.dart';
-import '../services/program_service.dart';
+import '../repositories/program_repository.dart';
 import '../widgets/state_views.dart';
 
 class ProgramsScreen extends StatefulWidget {
@@ -12,6 +12,7 @@ class ProgramsScreen extends StatefulWidget {
 }
 
 class _ProgramsScreenState extends State<ProgramsScreen> {
+  final ProgramRepository _programRepository = ProgramRepository();
   final _searchController = TextEditingController();
   String _selectedCategory = 'All';
   List<Program> _allPrograms = [];
@@ -48,7 +49,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
     });
 
     try {
-      final programs = await ProgramService.fetchPrograms();
+      final programs = await _programRepository.getPrograms();
       if (!mounted) return;
       setState(() {
         _allPrograms = programs;

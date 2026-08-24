@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import '../models/program.dart';
 import '../theme/app_theme.dart';
 
 class ProgramDetailsScreen extends StatefulWidget {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../main.dart';
-import '../services/submission_service.dart';
+import '../models/program.dart';
+import '../repositories/auth_repository.dart';
+import '../repositories/feedback_repository.dart';
 import '../widgets/state_views.dart';
 
 class FeedbackScreen extends StatefulWidget {
@@ -14,6 +15,8 @@ class FeedbackScreen extends StatefulWidget {
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
+  final AuthRepository _authRepository = AuthRepository();
+  final FeedbackRepository _feedbackRepository = FeedbackRepository();
   final _feedbackController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -87,7 +90,17 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await SubmissionService.submit(delay: const Duration(seconds: 2));
+      final userId = await _authRepository.getCurrentUserId();
+      if (userId == null) {
+        throw StateError('Please sign in before submitting feedback.');
+      }
+      await _feedbackRepository.submitFeedback(
+        userId: userId,
+        programId: widget.program.id,
+        category: _feedbackCategory!,
+        rating: _rating,
+        message: _feedbackController.text.trim(),
+      );
 
       if (!mounted) return;
       setState(() => _isLoading = false);

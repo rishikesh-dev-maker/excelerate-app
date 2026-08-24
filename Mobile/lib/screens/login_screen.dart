@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../services/auth_service.dart';
+import '../repositories/auth_repository.dart';
 import '../widgets/state_views.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,18 +11,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthRepository _authRepository = AuthRepository();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    // Seed a demo account so the app is signable-into out of the box.
-    // Credentials: demo@excelerate.org / Demo1234
-    AuthService.seedDemoAccount();
-  }
 
   @override
   void dispose() {
@@ -31,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleSignIn() {
+  Future<void> _handleSignIn() async {
     setState(() => _errorMessage = null);
 
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
@@ -41,20 +34,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulate login delay
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      await _authRepository.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
       if (!mounted) return;
-
-      try {
-        AuthService.login(_emailController.text, _passwordController.text);
-        Navigator.of(context).pushReplacementNamed('/home');
-      } on AuthException catch (e) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = e.message;
-        });
-      }
-    });
+      Navigator.of(context).pushReplacementNamed('/home');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
   }
 
   @override

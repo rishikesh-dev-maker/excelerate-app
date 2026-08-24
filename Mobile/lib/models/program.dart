@@ -5,7 +5,7 @@ class Program {
   final String description;
   final String duration;
   final List<String> learningOutcomes;
-  final String journey;
+  final List<String> journey;
   final String status;
   final int progressPercent;
 
@@ -31,7 +31,9 @@ class Program {
       learningOutcomes: json['learningOutcomes'] != null
           ? List<String>.from(json['learningOutcomes'])
           : [],
-      journey: json['journey'] ?? '',
+      journey: json['journey'] is List
+          ? List<String>.from(json['journey'])
+          : (json['journey']?.toString().split(' -> ') ?? []),
       status: json['status'] ?? 'Available',
       progressPercent: json['progressPercent'] ?? 0,
     );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../main.dart';
-import '../services/submission_service.dart';
+import '../models/program.dart';
+import '../repositories/auth_repository.dart';
+import '../repositories/enrollment_repository.dart';
 import '../widgets/state_views.dart';
 
 class EnrollmentScreen extends StatefulWidget {
@@ -14,6 +15,8 @@ class EnrollmentScreen extends StatefulWidget {
 }
 
 class _EnrollmentScreenState extends State<EnrollmentScreen> {
+  final AuthRepository _authRepository = AuthRepository();
+  final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _interestController = TextEditingController();
@@ -75,7 +78,17 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await SubmissionService.submit(delay: const Duration(seconds: 2));
+      final userId = await _authRepository.getCurrentUserId();
+      if (userId == null) {
+        throw StateError('Please sign in before enrolling.');
+      }
+      await _enrollmentRepository.enroll(
+        userId: userId,
+        programId: widget.program.id,
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        interest: _interestController.text.trim(),
+      );
 
       if (!mounted) return;
       setState(() => _isLoading = false);

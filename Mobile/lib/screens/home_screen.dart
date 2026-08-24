@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import '../models/program.dart';
 import '../theme/app_theme.dart';
-import '../services/program_service.dart';
+import '../repositories/program_repository.dart';
 import '../widgets/state_views.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,6 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ProgramRepository _programRepository = ProgramRepository();
   int _selectedIndex = 0;
 
   List<Program> _programs = [];
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final programs = await ProgramService.fetchPrograms();
+      final programs = await _programRepository.getPrograms();
       if (!mounted) return;
       setState(() {
         _programs = programs;

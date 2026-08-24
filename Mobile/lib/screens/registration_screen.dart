@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../services/submission_service.dart';
-import '../services/auth_service.dart';
+import '../repositories/auth_repository.dart';
 import '../widgets/state_views.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -12,6 +11,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final AuthRepository _authRepository = AuthRepository();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -81,10 +81,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await SubmissionService.submit(delay: const Duration(seconds: 2));
-
-      // Actually create the account so Login can validate against it.
-      AuthService.register(_emailController.text, _passwordController.text);
+      final email = _emailController.text.trim();
+      await _authRepository.register(
+        email,
+        _passwordController.text,
+        email.split('@').first,
+      );
 
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -106,12 +108,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ],
         ),
       );
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.message;
-      });
     } catch (e) {
       if (!mounted) return;
       setState(() {
