@@ -57,6 +57,7 @@ cd Mobile
 ```
 
 You can pass normal Flutter arguments too, for example `.\run_with_mock_api.ps1 -d chrome`.
+(For vscode Developers only if using another IDE then follow manual instructions for starting API server)
 
 ### Start the mock API manually
 
