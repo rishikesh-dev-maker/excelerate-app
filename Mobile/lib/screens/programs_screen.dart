@@ -99,14 +99,10 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
         // Stay on programs
         break;
       case 2:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Progress tracking coming in Week 3')),
-        );
+        Navigator.of(context).pushReplacementNamed('/progress');
         break;
       case 3:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile management coming in future')),
-        );
+        Navigator.of(context).pushReplacementNamed('/profile');
         break;
     }
   }
@@ -149,9 +145,9 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
             child: TextField(
               controller: _searchController,
               enabled: !_isLoading && _errorMessage == null,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search programs',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
                 prefixIconColor: AppTheme.textLight,
               ),
             ),
@@ -291,7 +287,7 @@ class _ProgramsScreenState extends State<ProgramsScreen> {
                     ],
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.chevron_right,
                   color: AppTheme.textLight,
                 ),

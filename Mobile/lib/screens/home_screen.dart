@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/program.dart';
+import '../providers/session_provider.dart';
 import '../theme/app_theme.dart';
 import '../repositories/program_repository.dart';
 import '../widgets/state_views.dart';
@@ -58,20 +60,51 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.of(context).pushNamed('/programs');
         break;
       case 2:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Progress tracking coming in Week 3')),
-        );
+        Navigator.of(context).pushReplacementNamed('/progress');
         break;
       case 3:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile management coming in future')),
-        );
+        Navigator.of(context).pushReplacementNamed('/profile');
         break;
+    }
+  }
+
+  Future<void> _confirmAndLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('You will need to sign in again to continue.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Log out'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout != true || !mounted) return;
+
+    try {
+      await context.read<SessionProvider>().logout();
+      if (!mounted) return;
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to log out: $e')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionProvider>();
+    final learnerName = session.user?.name ?? 'Learner';
     final activeProgramCount =
         _programs.where((p) => p.status == 'In progress').length;
     final overallProgress = _programs.isEmpty
@@ -84,11 +117,16 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: AppTheme.wordmark(),
         actions: [
+          IconButton(
+            tooltip: 'Log out',
+            icon: const Icon(Icons.logout),
+            onPressed: session.isLoading ? null : _confirmAndLogout,
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
               child: Text(
-                'Hi, Learner 👋',
+                'Hi, $learnerName 👋',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
@@ -115,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Good morning, Learner 🌟',
+                                'Good morning, $learnerName 🌟',
                                 style: Theme.of(context).textTheme.headlineSmall,
                               ),
                               const SizedBox(height: 4),
@@ -350,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            Icon(
+            const Icon(
               Icons.chevron_right,
               color: AppTheme.textLight,
             ),

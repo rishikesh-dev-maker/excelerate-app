@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/program.dart';
+import '../repositories/program_repository.dart';
 import '../theme/app_theme.dart';
+import '../widgets/state_views.dart';
 
 class ProgramDetailsScreen extends StatefulWidget {
   final Program program;
@@ -15,17 +17,40 @@ class ProgramDetailsScreen extends StatefulWidget {
 }
 
 class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
+  final ProgramRepository _programRepository = ProgramRepository();
   bool _isEnrolling = false;
+  bool _isUpdatingModule = false;
+  late Program _program;
+  String? _loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _program = widget.program;
+    _loadProgramDetails();
+  }
+
+  Future<void> _loadProgramDetails() async {
+    try {
+      final program = await _programRepository.getProgramById(widget.program.id);
+      if (!mounted) return;
+      setState(() => _program = program);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loadError = e.toString());
+    }
+  }
 
   void _handleContinueProgram() {
     setState(() => _isEnrolling = true);
 
     // Simulate enrollment
     Future.delayed(const Duration(seconds: 1), () {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Welcome to ${widget.program.title}! Starting next module...',
+            'Welcome to ${_program.title}! Starting next module...',
           ),
           duration: const Duration(seconds: 2),
         ),
@@ -50,6 +75,12 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (_loadError != null) ...[
+                InlineErrorBanner(
+                  message: 'Showing saved details. Could not refresh: $_loadError',
+                ),
+                const SizedBox(height: 16),
+              ],
               // Header
               Text(
                 'Program Details',
@@ -69,12 +100,12 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.program.title,
+                      _program.title,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${widget.program.duration} • ${widget.program.category}',
+                      '${_program.duration} • ${_program.category}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
@@ -98,7 +129,7 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
-                  ...widget.program.learningOutcomes
+                  ..._program.learningOutcomes
                       .map((outcome) => _buildOutcomeItem(context, outcome))
                       .toList(),
                 ],
@@ -114,15 +145,15 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
-                  ...widget.program.journey
+                  ..._program.journey
                       .asMap()
                       .entries
                       .map(
                         (entry) => _buildJourneyItem(
                           context,
                           entry.value,
-                          isCompleted: widget.program.status == 'In progress' &&
-                              entry.key < 2, // Show first 2 as completed for demo
+                          moduleIndex: entry.key,
+                          isCompleted: _program.completedModules.contains(entry.key),
                         ),
                       )
                       .toList(),
@@ -131,10 +162,15 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
               const SizedBox(height: 28),
 
               // Continue Button
-              SizedBox(
-                width: double.infinity,
+              Center(
+                child: SizedBox(
+                width: 240,
                 child: ElevatedButton(
                   onPressed: _isEnrolling ? null : _handleContinueProgram,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
                   child: _isEnrolling
                       ? const SizedBox(
                           height: 20,
@@ -147,46 +183,55 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
                           ),
                         )
                       : Text(
-                          widget.program.status == 'In progress'
+                          _program.status == 'In progress'
                               ? 'Continue Program'
                               : 'Join Program',
                         ),
+                ),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Enrollment Form Button
-              SizedBox(
-                width: double.infinity,
+              Center(
+                child: SizedBox(
+                width: 240,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppTheme.primaryPurple,
                     side: const BorderSide(color: AppTheme.primaryPurple),
+                    minimumSize: const Size.fromHeight(44),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   onPressed: () => Navigator.of(context).pushNamed(
                     '/enrollment',
-                    arguments: widget.program,
+                    arguments: _program,
                   ),
                   child: const Text('Enroll Now'),
+                ),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Feedback Button
-              SizedBox(
-                width: double.infinity,
+              Center(
+                child: SizedBox(
+                width: 240,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppTheme.primaryOrange,
                     side: const BorderSide(color: AppTheme.primaryOrange),
+                    minimumSize: const Size.fromHeight(44),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   onPressed: () => Navigator.of(context).pushNamed(
                     '/feedback',
-                    arguments: widget.program,
+                    arguments: _program,
                   ),
                   child: const Text('Share Feedback'),
+                ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -226,57 +271,132 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
   Widget _buildJourneyItem(
     BuildContext context,
     String journey, {
+    required int moduleIndex,
     bool isCompleted = false,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isCompleted ? AppTheme.successGreen : AppTheme.borderColor,
+    return GestureDetector(
+      onTap: () => _showModuleDetails(context, moduleIndex, journey, isCompleted),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isCompleted ? AppTheme.successGreen : AppTheme.borderColor,
+          ),
+        ),
+        child: Row(
+          children: [
+            if (isCompleted)
+              Container(
+                margin: const EdgeInsets.only(right: 12),
+                width: 20,
+                height: 20,
+                decoration: const BoxDecoration(
+                  color: AppTheme.successGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                  size: 12,
+                ),
+              )
+            else
+              Container(
+                margin: const EdgeInsets.only(right: 12),
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentGray,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.borderColor),
+                ),
+              ),
+            Expanded(
+              child: Text(
+                journey,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color:
+                          isCompleted ? AppTheme.successGreen : AppTheme.textDark,
+                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                    ),
+              ),
+            ),
+          ],
         ),
       ),
-      child: Row(
-        children: [
-          if (isCompleted)
-            Container(
-              margin: const EdgeInsets.only(right: 12),
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                color: AppTheme.successGreen,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 12,
-              ),
-            )
-          else
-            Container(
-              margin: const EdgeInsets.only(right: 12),
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: AppTheme.accentGray,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.borderColor),
-              ),
-            ),
-          Expanded(
-            child: Text(
-              journey,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isCompleted ? AppTheme.successGreen : AppTheme.textDark,
-                    decoration: isCompleted ? TextDecoration.lineThrough : null,
+    );
+  }
+
+  void _showModuleDetails(
+    BuildContext context,
+    int moduleIndex,
+    String module,
+    bool isCompleted,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Module ${moduleIndex + 1}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(module),
+            const SizedBox(height: 12),
+            Text(
+              isCompleted ? 'Status: Completed' : 'Status: Not completed yet',
+              style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
+                    color: isCompleted
+                        ? AppTheme.successGreen
+                        : AppTheme.textLight,
                   ),
             ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: _isUpdatingModule
+                ? null
+                : () async {
+                    Navigator.pop(dialogContext);
+                    await _updateModuleCompletion(moduleIndex, !isCompleted);
+                  },
+            child: Text(isCompleted ? 'Mark incomplete' : 'Mark complete'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Close'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _updateModuleCompletion(int moduleIndex, bool isComplete) async {
+    setState(() => _isUpdatingModule = true);
+    try {
+      final updatedProgram = await _programRepository.updateModuleCompletion(
+        program: _program,
+        moduleIndex: moduleIndex,
+        isComplete: isComplete,
+      );
+      if (!mounted) return;
+      setState(() => _program = updatedProgram);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isComplete ? 'Module marked complete.' : 'Module marked incomplete.'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not update module: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isUpdatingModule = false);
+    }
   }
 }

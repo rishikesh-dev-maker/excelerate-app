@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../repositories/auth_repository.dart';
+import '../providers/session_provider.dart';
 import '../widgets/state_views.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -11,7 +12,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  final AuthRepository _authRepository = AuthRepository();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -82,7 +82,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     try {
       final email = _emailController.text.trim();
-      await _authRepository.register(
+      await context.read<SessionProvider>().register(
         email,
         _passwordController.text,
         email.split('@').first,

@@ -229,7 +229,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _feedbackCategory,
+                  initialValue: _feedbackCategory,
                   decoration: const InputDecoration(
                     hintText: 'Select a category',
                   ),

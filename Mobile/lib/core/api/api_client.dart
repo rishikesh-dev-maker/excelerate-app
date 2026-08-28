@@ -56,6 +56,22 @@ class ApiClient {
     }
   }
 
+  Future<dynamic> patch(String endpoint, {Map<String, dynamic>? body}) async {
+    _checkSimulation();
+    try {
+      final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+      final response = await _client
+          .patch(uri, headers: _headers, body: body != null ? jsonEncode(body) : null)
+          .timeout(ApiConstants.timeout);
+      return _handleResponse(response);
+    } on TimeoutException {
+      throw NetworkException('Request timed out. Please try again.');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw NetworkException('Network error occurred: ${e.toString()}');
+    }
+  }
+
   void _checkSimulation() {
     if (ApiConstants.simulateFailure) {
       throw NetworkException('Simulated network failure.');

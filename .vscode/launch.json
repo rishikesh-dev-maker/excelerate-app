@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Excelerate (with mock API)",
+      "request": "launch",
+      "type": "dart",
+      "program": "Mobile/lib/main.dart",
+      "preLaunchTask": "Start Excelerate mock API"
+    }
+  ]
+}

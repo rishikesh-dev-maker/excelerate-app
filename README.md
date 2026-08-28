@@ -47,7 +47,18 @@ excelerate-app/
 - Node.js 16+
 - An Android emulator, iOS Simulator, browser, or physical device
 
-### 1. Start the mock API
+### Run the app and mock API together
+
+On Windows, use the launcher below. It starts the mock API when port 3000 is not already in use, then launches Flutter.
+
+```powershell
+cd Mobile
+.\run_with_mock_api.ps1
+```
+
+You can pass normal Flutter arguments too, for example `.\run_with_mock_api.ps1 -d chrome`.
+
+### Start the mock API manually
 
 ```bash
 cd mock-api

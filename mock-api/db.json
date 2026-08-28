@@ -43,8 +43,11 @@
         "Database Connectivity"
       ],
       "journey": "Module 1: Spring Core -> Module 2: Security -> Module 3: Deployment",
-      "status": "Available",
-      "progressPercent": 0
+      "status": "In progress",
+      "progressPercent": 33,
+      "completedModules": [
+        0
+      ]
     },
     {
       "id": 3,
@@ -101,6 +104,15 @@
       "interest": "I like the detail in it.",
       "status": "ENROLLED",
       "id": 1
+    },
+    {
+      "userId": 2,
+      "programId": 2,
+      "name": "Zainab Mughal",
+      "email": "zaim@gmail.com",
+      "interest": "To learn about it",
+      "status": "ENROLLED",
+      "id": 2
     }
   ],
   "feedback": [

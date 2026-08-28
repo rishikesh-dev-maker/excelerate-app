@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../repositories/auth_repository.dart';
+import '../providers/session_provider.dart';
 import '../widgets/state_views.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,7 +12,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthRepository _authRepository = AuthRepository();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await _authRepository.login(
+      await context.read<SessionProvider>().login(
         _emailController.text.trim(),
         _passwordController.text,
       );
