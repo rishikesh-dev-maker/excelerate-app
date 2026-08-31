@@ -127,6 +127,9 @@ excelerate-app/
 ├── image-6.png
 ├── image-7.png
 ├── image-8.png
+├── image-9.png
+├── image-10.png
+|
 ├── README.md
 └── .gitignore
 ```
@@ -271,6 +274,11 @@ The repository includes app screenshots at the project root, which are useful fo
 ![Program details](image-3.png)
 ![Enrollment flow](image-4.png)
 ![Feedback flow](image-5.png)
+![Screen 6](image-6.png)
+![Screen 7](image-7.png)
+![Screen 8](image-8.png)
+![Progress Screen](image-9.png)
+![Profile Screen](image-10.png)
 
 ## Installation and run instructions
 
